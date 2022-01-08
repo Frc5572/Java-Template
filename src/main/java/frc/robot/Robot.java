@@ -30,8 +30,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic(){
-System.out.println("Auto Periodic");}
+  public void autonomousPeriodic() {
+    System.out.println("Auto Periodic");
+  }
 
   @Override
   public void teleopInit() {
