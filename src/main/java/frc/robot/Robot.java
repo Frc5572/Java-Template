@@ -42,14 +42,12 @@ public class Robot extends TimedRobot {
   Encoder encoder1 = new Encoder(3, 4, true);
   Encoder encoder2 = new Encoder(5, 6, false);
 
-
   @Override
   public void robotInit() {
     CameraServer.getInstance().startAutomaticCapture();
-    encoder1.setDistancePerPulse(1./256.);
+    encoder1.setDistancePerPulse(1. / 256.);
     encoder1.reset();
     rightDriveMotors.setInverted(true);
-
   }
 
   @Override
@@ -66,7 +64,7 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     System.out.println(encoder1.getDistance());
     // System.out.println(encoder2.getDistance());
-    if (encoder1.getDistance() < 2){
+    if (encoder1.getDistance() < 2) {
       leftDriveMotors.set(1);
       rightDriveMotors.set(1);
     } else {
@@ -105,7 +103,7 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {}
 
-/* ---------------FUN--------------- */
+  /* ---------------FUN--------------- */
 
   int MotorSpeed = 1;
 
@@ -118,38 +116,41 @@ public class Robot extends TimedRobot {
   */
 
   void Drive() {
-    if (abs(driver.getRawAxis(1)) > .01){
-        leftDriveMotors.set(driver.getRawAxis(1) / MotorSpeed);
+    if (abs(driver.getRawAxis(1)) > .01) {
+      leftDriveMotors.set(driver.getRawAxis(1) / MotorSpeed);
     } else {
-        leftDriveMotors.set(0);
+      leftDriveMotors.set(0);
     }
     // new controllers have axis = 3, old controllers = 5
-    if (abs(driver.getRawAxis(3)) > .01){
-        rightDriveMotors.set(driver.getRawAxis(3) / MotorSpeed);
+    if (abs(driver.getRawAxis(3)) > .01) {
+      rightDriveMotors.set(driver.getRawAxis(3) / MotorSpeed);
     } else {
-        rightDriveMotors.set(0);
+      rightDriveMotors.set(0);
     }
   }
+
   void Take() {
-    if(operator.getXButton()){
+    if (operator.getXButton()) {
       intakeMotors.set(1);
-    } else if(operator.getYButton()) {
+    } else if (operator.getYButton()) {
       intakeMotors.set(-1);
     } else {
       intakeMotors.set(0);
     }
   }
+
   void Elevator() {
-    if(operator.getBButton() && !elevSwitch.get()){
+    if (operator.getBButton() && !elevSwitch.get()) {
       elevator.set(-.5);
     } else {
       elevator.set(0);
     }
   }
+
   void Climb() {
-    if(driverJ.getPOV() == 0 && climbSwitch.get()){
+    if (driverJ.getPOV() == 0 && climbSwitch.get()) {
       climb.set(-.5);
-    } else if(driverJ.getPOV() == 180) {
+    } else if (driverJ.getPOV() == 180) {
       climb.set(.5);
     } else {
       climb.set(0);
