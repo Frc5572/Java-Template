@@ -26,19 +26,13 @@ jobs:
         # Recommended if you use MacOS:
         # githubToken: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: "--replace"
-      - run: >-
-          curl --request POST --url 'https://api.github.com/repos/${{ github.repository }}/dispatches'
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --data '{"event_type": "hello"}'
+          args: "--set-exit-if-changed"
   build:
     name: Build
     runs-on: windows-2019
     needs: [linting]
     steps:
       - uses: actions/checkout@v2 # v2 minimum
-        with:
-          ref: ${{ github.ref_name }}
-      # - run: git pull
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
