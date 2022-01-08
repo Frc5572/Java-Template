@@ -24,7 +24,7 @@ jobs:
         # Recommended if you use MacOS:
         # githubToken: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: "--replace --set-exit-if-changed --dry-run"
+          args: "--set-exit-if-changed --dry-run"
   build:
     name: Build
     runs-on: windows-2019
