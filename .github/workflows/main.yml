@@ -20,19 +20,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
-        # with:
-        #   token: ${{ secrets.PAT_TOKEN }}
       - uses: axel-op/googlejavaformat-action@v3
         # Recommended if you use MacOS:
         # githubToken: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: "--set-exit-if-changed"
+          args: "--replace"
   build:
     name: Build
     runs-on: windows-2019
     needs: [linting]
     steps:
       - uses: actions/checkout@v2 # v2 minimum
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
