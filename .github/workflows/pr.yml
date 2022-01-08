@@ -21,18 +21,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: 'github-pr-check'
           tool_name: 'testtool'
-  build:
-    name: Build Robot Code
-    runs-on: windows-2019
-    needs: [check_style]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2 # v2 minimum required
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'temurin' # See 'Supported distributions' for available options
-          java-version: '11'
-      - name: Build
-        shell: cmd
-        run: ./gradlew build
