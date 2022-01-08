@@ -10,38 +10,19 @@ on:
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  cpplint:
-    # Name the Job
-    name: Lint Code Base
-    # Set the agent to run on
+jobs:  
+
+  formatting:
+    name: Linting
     runs-on: ubuntu-latest
-
-    ##################
-    # Load all steps #
-    ##################
     steps:
-      ##########################
-      # Checkout the code base #
-      ##########################
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2 # v2 minimum required
+      - uses: axel-op/googlejavaformat-action@v3
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
-
-      ################################
-      # Run Linter against code base #
-      ################################
-      - name: Lint Code Base
-        uses: github/super-linter@v4
-        env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_INCLUDE: .*\.java
-          
-  create_release:
+          args: "--skip-sorting-imports --replace"
+          # Recommended if you use MacOS:
+          # githubToken: ${{ secrets.GITHUB_TOKEN }}
+  build:
     name: Build
     runs-on: windows-2019
     steps:
