@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
-      - run: git pull
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--replace"
@@ -28,7 +27,9 @@ jobs:
     runs-on: windows-2019
     needs: [linting]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@
+        with:
+          ref: ${{ github.ref }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
