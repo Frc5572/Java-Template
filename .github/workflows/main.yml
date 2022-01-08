@@ -27,8 +27,10 @@ jobs:
     runs-on: windows-2019
     needs: [linting]
     steps:
-      - uses: actions/checkout@v2 # v2 minimum required
-      - run: git pull
+      - uses: actions/checkout@v2 # v2 minimum
+        with:
+          ref: ${{ github.ref_name }}
+      # - run: git pull
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
