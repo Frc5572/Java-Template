@@ -28,7 +28,8 @@ jobs:
         with:
           args: "--replace"
       - run: >-
-          curl --request POST --url 'https://api.github.com/repos/${{ github.repository }}/dispatches' --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'
+          curl --request POST --url 'https://api.github.com/repos/${{ github.repository }}/dispatches'
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' --data '{"event_type": "hello"}'
   build:
     name: Build
     runs-on: windows-2019
