@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@
         with:
-          ref: '$GITHUB_BASE_REF'
+          ref: frc5572/java-template@${{ github.ref }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin' # See 'Supported distributions' for available options
