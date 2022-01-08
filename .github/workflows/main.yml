@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # v2 minimum required
+      - run: git pull
       - uses: axel-op/googlejavaformat-action@v3
         with:
           args: "--replace"
