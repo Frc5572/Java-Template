@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-
-
-
 import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
@@ -29,11 +26,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    System.out.println("Auto Init");}
+    System.out.println("Auto Init");
+  }
 
   @Override
   public void autonomousPeriodic() {
-    System.out.println("Auto Periodic");}
+    System.out.println("Auto Periodic");
+  }
 
   @Override
   public void teleopInit() {
