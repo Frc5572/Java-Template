@@ -23,7 +23,7 @@ jobs:
         # Recommended if you use MacOS:
         # githubToken: ${{ secrets.GITHUB_TOKEN }}
       - run: |-
-          if [ $(git rev-parse HEAD) == ${{ github.sha }} ]; then
+          if [ $(git rev-parse HEAD) != ${{ github.sha }} ]; then
             echo "test"
           fi
   build:
