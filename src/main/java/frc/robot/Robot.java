@@ -14,10 +14,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
-    System.out.println("Robot Init"); }
+    System.out.println("Robot Init");
+  }
 
   @Override
-  public void robotPeriodic() {    System.out.println("Robot Periodic");
+  public void robotPeriodic() {
+    System.out.println("Robot Periodic");
   }
 
   @Override
