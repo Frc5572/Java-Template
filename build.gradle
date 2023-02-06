@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2023.1.1"
+    id "edu.wpi.first.GradleRIO" version "2023.3.2"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -96,4 +96,14 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+javadoc {
+    configure(options) {
+        options.addBooleanOption("-allow-script-in-comments",true)
+        options.addStringOption("link", "https://first.wpi.edu/wpilib/allwpilib/docs/release/java")
+        options.header = "<script type=\"text/javascript\" async" +
+            "  src=\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML\">" +
+            "</script>"
+    }
 }
