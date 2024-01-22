@@ -45,23 +45,19 @@ public class Robot extends LoggedRobot {
         } else {
             setUseTiming(false); // Run as fast as possible
             String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope
-                                                          // (or prompt the user)
+            // (or prompt the user)
             Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save
-                                                                                                  // outputs
-                                                                                                  // to
-                                                                                                  // a
-                                                                                                  // new
-                                                                                                  // log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+            // Save outputs to a new log
+
         }
 
         // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
         // "Understanding Data Flow" page
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values
-                        // may be added.
+        // may be added.
 
     }
-
     /**
      * This function is called every robot packet, no matter the mode. Use this for items like
      * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
