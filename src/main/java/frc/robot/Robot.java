@@ -40,7 +40,7 @@ public class Robot extends LoggedRobot {
                 Logger.recordMetadata("GitDirty", "All changes committed");
                 break;
             case 1:
-                Logger.recordMetadata("GitDirty", "Uncomitted changes");
+                Logger.recordMetadata("GitDirty", "Uncommitted changes");
                 break;
             default:
                 Logger.recordMetadata("GitDirty", "Unknown");
@@ -49,7 +49,6 @@ public class Robot extends LoggedRobot {
 
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter("/media/sda1")); // Log to a USB stick
-                                                                     // ("/U/logs")
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
             setUseTiming(true);
