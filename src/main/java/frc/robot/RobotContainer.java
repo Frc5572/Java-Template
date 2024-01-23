@@ -28,22 +28,23 @@ public class RobotContainer {
     // Field Relative and openLoop Variables
     boolean fieldRelative;
     boolean openLoop;
-    private final Drivetrain drivetrain;
+    private Drivetrain drivetrain;
 
 
     /* Subsystems */
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
-     *
-     * @param isReal Whether or not its a real or simulated robot
      */
-    public RobotContainer(boolean isReal) {
+    public RobotContainer() {
         SmartDashboard.putData("Choose Auto: ", autoChooser);
         autoChooser.setDefaultOption("Wait 1 Second", "wait");
-        if (isReal) {
+        if (Robot.isReal()) {
             // Use Real HW
             drivetrain = new Drivetrain(new DrivetrainIO() {});
+        } else if (Robot.isSimulation()) {
+            // DO SIMULATION THINGS
+            // drivetrain = new Drivetrain(new DrivetrainSim() {});
         } else {
             drivetrain = new Drivetrain(new DrivetrainIO() {});
         }
