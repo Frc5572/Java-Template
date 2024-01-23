@@ -67,7 +67,7 @@ public class Robot extends LoggedRobot {
      * SmartDashboard integrated updating.
      */
 
-     @Override
+    @Override
     public void robotPeriodic() {
         // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled
         // commands,
