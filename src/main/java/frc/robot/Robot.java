@@ -170,11 +170,9 @@ public class Robot extends LoggedRobot {
     private static final String advantageScopeFileName = "akit-log-path.txt";
 
     /**
-     * Finds the path to a log file for replay, using the following priorities:
-     *
-     *
-     * 1. The value of the "AKIT_LOG_PATH" environment variable, if set 2. The file currently open
-     * in AdvantageScope, if available 3. The result of the prompt displayed to the user
+     * Finds the path to a log file for replay, using the following priorities: 1. The value of the
+     * "AKIT_LOG_PATH" environment variable, if set 2. The file currently open in AdvantageScope, if
+     * available 3. The result of the prompt displayed to the user
      */
     public static String findReplayLog() {
         // Read environment variables
