@@ -54,7 +54,6 @@ public class Robot extends LoggedRobot {
             setUseTiming(true);
         } else if (isSimulation()) {
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix("~/", "_sim")));
             setUseTiming(true);
         } else {
             String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope
