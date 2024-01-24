@@ -92,8 +92,6 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-
-
 }
 
 // Simulation configuration (e.g. environment variables).

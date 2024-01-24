@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.drive.DrivetrainIO;
+import frc.robot.subsystems.drive.DrivetrainVictorSP;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -25,13 +26,8 @@ public class RobotContainer {
     // Initialize AutoChooser Sendable
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
-    // Field Relative and openLoop Variables
-    boolean fieldRelative;
-    boolean openLoop;
-    private Drivetrain drivetrain;
-
-
     /* Subsystems */
+    private Drivetrain drivetrain;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -41,7 +37,7 @@ public class RobotContainer {
         autoChooser.setDefaultOption("Wait 1 Second", "wait");
         if (Robot.isReal()) {
             // Use Real HW
-            drivetrain = new Drivetrain(new DrivetrainIO() {});
+            drivetrain = new Drivetrain(new DrivetrainVictorSP());
         } else if (Robot.isSimulation()) {
             // DO SIMULATION THINGS
             // drivetrain = new Drivetrain(new DrivetrainSim() {});
