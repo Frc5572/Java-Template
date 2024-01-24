@@ -24,6 +24,9 @@ public class Robot extends LoggedRobot {
     private RobotContainer robotContainer;
     private Command autoChooser;
 
+    /**
+     * Robnot Run type
+     */
     public static enum RobotRunType {
         /** Real Robot. */
         kReal,
@@ -169,6 +172,7 @@ public class Robot extends LoggedRobot {
     /**
      * Finds the path to a log file for replay, using the following priorities:
      *
+     *
      * 1. The value of the "AKIT_LOG_PATH" environment variable, if set 2. The file currently open
      * in AdvantageScope, if available 3. The result of the prompt displayed to the user
      */
@@ -188,6 +192,7 @@ public class Robot extends LoggedRobot {
         try (Scanner fileScanner = new Scanner(advantageScopeTempPath)) {
             advantageScopeLogPath = fileScanner.nextLine();
         } catch (IOException e) {
+            System.out.println("Something went wrong");
         }
         if (advantageScopeLogPath != null) {
             System.out.println("Using log from AdvantageScope - \"" + advantageScopeLogPath + "\"");
