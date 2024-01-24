@@ -5,8 +5,13 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Robot.RobotRunType;
+import frc.robot.subsystems.drive.Drivetrain;
+import frc.robot.subsystems.drive.DrivetrainIO;
+import frc.robot.subsystems.drive.DrivetrainVictorSP;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -20,21 +25,27 @@ public class RobotContainer {
     private final CommandXboxController operator = new CommandXboxController(Constants.operatorID);
 
     // Initialize AutoChooser Sendable
-    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-
-    // Field Relative and openLoop Variables
-    boolean fieldRelative;
-    boolean openLoop;
-
+    private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     /* Subsystems */
+    private Drivetrain drivetrain;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {
+    public RobotContainer(RobotRunType runtimeType) {
         SmartDashboard.putData("Choose Auto: ", autoChooser);
-        autoChooser.setDefaultOption("Do Nothing", new WaitCommand(1));
+        autoChooser.setDefaultOption("Wait 1 Second", "wait");
+        switch (runtimeType) {
+            case kReal:
+                drivetrain = new Drivetrain(new DrivetrainVictorSP());
+                break;
+            case kSimulation:
+                // drivetrain = new Drivetrain(new DrivetrainSim() {});
+                break;
+            default:
+                drivetrain = new Drivetrain(new DrivetrainIO() {});
+        }
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -53,8 +64,15 @@ public class RobotContainer {
      * @return Returns autonomous command selected.
      */
     public Command getAutonomousCommand() {
-        // return new P1_3B(swerveDrive, shooter, innerMagazine, outerMagazine, intake, turret,
-        // vision);
-        return autoChooser.getSelected();
+        Command autocommand;
+        String stuff = autoChooser.getSelected();
+        switch (stuff) {
+            case "wait":
+                autocommand = new WaitCommand(1.0);
+                break;
+            default:
+                autocommand = new InstantCommand();
+        }
+        return autocommand;
     }
 }
