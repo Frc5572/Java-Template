@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Robot.RobotRunType;
 import frc.robot.subsystems.drive.Drivetrain;
 import frc.robot.subsystems.drive.DrivetrainIO;
 import frc.robot.subsystems.drive.DrivetrainVictorSP;
@@ -32,17 +33,18 @@ public class RobotContainer {
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
-    public RobotContainer() {
+    public RobotContainer(RobotRunType runtimeType) {
         SmartDashboard.putData("Choose Auto: ", autoChooser);
         autoChooser.setDefaultOption("Wait 1 Second", "wait");
-        if (Robot.isReal()) {
-            // Use Real HW
-            drivetrain = new Drivetrain(new DrivetrainVictorSP());
-        } else if (Robot.isSimulation()) {
-            // DO SIMULATION THINGS
-            // drivetrain = new Drivetrain(new DrivetrainSim() {});
-        } else {
-            drivetrain = new Drivetrain(new DrivetrainIO() {});
+        switch (runtimeType) {
+            case kReal:
+                drivetrain = new Drivetrain(new DrivetrainVictorSP());
+                break;
+            case kSimulation:
+                // drivetrain = new Drivetrain(new DrivetrainSim() {});
+                break;
+            default:
+                drivetrain = new Drivetrain(new DrivetrainIO() {});
         }
         // Configure the button bindings
         configureButtonBindings();
