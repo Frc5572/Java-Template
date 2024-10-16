@@ -9,11 +9,7 @@ import edu.wpi.first.wpilibj.motorcontrol.VictorSP;
  * Drivetrain VictorSP
  */
 public class DrivetrainVictorSP implements DrivetrainIO {
-    private final VictorSP left1 = new VictorSP(4);
-    private final VictorSP left2 = new VictorSP(5);
-
-    private final VictorSP right1 = new VictorSP(6);
-    private final VictorSP right2 = new VictorSP(7);
+    //create all 4 directions for both motars
 
     private AHRS gyro = new AHRS(SPI.Port.kMXP);
 
@@ -21,10 +17,8 @@ public class DrivetrainVictorSP implements DrivetrainIO {
      * Drivetrain VictorSP
      */
     public DrivetrainVictorSP() {
-        left1.addFollower(left2);
-        right1.addFollower(right2);
-        right1.setInverted(true);
-        right2.setInverted(true);
+        //make the motars follow each other and then make them inverted
+        
     }
 
     @Override
@@ -36,8 +30,8 @@ public class DrivetrainVictorSP implements DrivetrainIO {
      * Drive Voltage
      */
     public void setDriveVoltage(double lvolts, double rvolts) {
-        left1.set(lvolts);
-        right1.set(rvolts);
+        //set the volts to the motar
+        
     }
 
 }
