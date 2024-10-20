@@ -9,9 +9,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot.RobotRunType;
-import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.DrivetrainIO;
-import frc.robot.subsystems.drive.DrivetrainReal;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LEDs;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -22,13 +21,13 @@ import frc.robot.subsystems.drive.DrivetrainReal;
 public class RobotContainer {
     /* Controllers */
     private final CommandXboxController driver = new CommandXboxController(Constants.driverID);
-    private final CommandXboxController operator = new CommandXboxController(Constants.operatorID);
 
     // Initialize AutoChooser Sendable
     private final SendableChooser<String> autoChooser = new SendableChooser<>();
 
     /* Subsystems */
-    private Drivetrain drivetrain;
+    Intake intake = new Intake();
+    LEDs leds = new LEDs(9, 60);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -36,16 +35,8 @@ public class RobotContainer {
     public RobotContainer(RobotRunType runtimeType) {
         SmartDashboard.putData("Choose Auto: ", autoChooser);
         autoChooser.setDefaultOption("Wait 1 Second", "wait");
-        switch (runtimeType) {
-            case kReal:
-                drivetrain = new Drivetrain(new DrivetrainReal());
-                break;
-            case kSimulation:
-                // drivetrain = new Drivetrain(new DrivetrainSim() {});
-                break;
-            default:
-                drivetrain = new Drivetrain(new DrivetrainIO() {});
-        }
+
+        leds.setDefaultCommand(leds.setAllianceColor().ignoringDisable(true));
         // Configure the button bindings
         configureButtonBindings();
     }
@@ -56,7 +47,11 @@ public class RobotContainer {
      * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a
      * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
-    private void configureButtonBindings() {}
+    private void configureButtonBindings() {
+
+        driver.a().whileTrue(intake.intakeCommand());
+
+    }
 
     /**
      * Gets the user's selected autonomous command.
