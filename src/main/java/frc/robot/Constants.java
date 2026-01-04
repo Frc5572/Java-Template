@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
@@ -57,22 +58,20 @@ public final class Constants {
      */
     public static final class Swerve {
         /** If true, motors and absolute encoders are on canivore loop. Otherwise on rio. */
-        public static final boolean isCanviore = false;
+        public static final boolean isCanviore = true;
 
         public static final NavXComType navXID = NavXComType.kMXP_SPI;
-        public static final boolean invertGyro = true;
-        public static final boolean isFieldRelative = true;
-        public static final boolean isOpenLoop = false;
+        public static final boolean invertGyro = false;
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(23.75);
-        public static final double wheelBase = Units.inchesToMeters(17.75);
+        public static final double trackWidth = Units.inchesToMeters(24.229);
+        public static final double wheelBase = Units.inchesToMeters(24.229);
         public static final Distance wheelDiameter = Inches.of(3.8);
         public static final Distance wheelCircumference = wheelDiameter.times(Math.PI);
         public static final Distance wheelRadius = wheelDiameter.div(2);
 
-        public static final Distance bumperFront = Inches.of(15);
-        public static final Distance bumperRight = Inches.of(15);
+        public static final Distance bumperFront = Inches.of(17.5);
+        public static final Distance bumperRight = Inches.of(17.5);
 
         public static final Translation2d[] swerveTranslations =
             new Translation2d[] {new Translation2d(wheelBase / 2.0, trackWidth / 2.0),
@@ -162,31 +161,31 @@ public final class Constants {
         public static final ModuleConstants[] modulesConstants = new ModuleConstants[] {
             // Front Left Module
             new ModuleConstantsBuilder()
-                .driveMotorId(6)
-                .angleMotorId(51)
-                .canCoderId(4)
-                .angleOffset(Rotation2d.fromRotations(-0.496826))
+                .driveMotorId(2)
+                .angleMotorId(1)
+                .canCoderId(1)
+                .angleOffset(Rotation2d.fromRotations(0.008789))
                 .finish(),
             // Front Right Module
             new ModuleConstantsBuilder()
-                .driveMotorId(2)
-                .angleMotorId(40)
+                .driveMotorId(9)
+                .angleMotorId(8)
                 .canCoderId(2)
-                .angleOffset(Rotation2d.fromRotations(0.405518 + 0.5))
+                .angleOffset(Rotation2d.fromRotations(-0.301758))
                 .finish(),
             // Back Left Module
             new ModuleConstantsBuilder()
-                .driveMotorId(3)
-                .angleMotorId(9)
-                .canCoderId(1)
-                .angleOffset(Rotation2d.fromRotations(0.348145))
+                .driveMotorId(0)
+                .angleMotorId(19)
+                .canCoderId(4)
+                .angleOffset(Rotation2d.fromRotations(-0.451172))
                 .finish(),
             // Back Right Module
             new ModuleConstantsBuilder()
-                .driveMotorId(10)
-                .angleMotorId(8)
-                .canCoderId(10)
-                .angleOffset(Rotation2d.fromRotations(0.317627 + 0.5))
+                .driveMotorId(11)
+                .angleMotorId(10)
+                .canCoderId(3)
+                .angleOffset(Rotation2d.fromRotations(0.321777))
                 .finish(),
         };
         // @formatter:on
@@ -209,7 +208,9 @@ public final class Constants {
                 .simLatencyStdDev(0.02)
                 .calibrationErrorMean(0.8)
                 .calibrationErrorStdDev(0.08)
-                .robotToCamera(new Transform3d(0, 0, 0, new Rotation3d(Units.degreesToRadians(180), 0, 0)))
+                .robotToCamera(new Transform3d(new Translation3d(Units.inchesToMeters(11),
+                    -Units.inchesToMeters(12), Units.inchesToMeters(10)),
+                    new Rotation3d(Math.PI, 0, 0)))
                 .translationError(0.02)
                 .finish(),
         };
