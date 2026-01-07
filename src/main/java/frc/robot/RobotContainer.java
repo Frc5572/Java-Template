@@ -1,17 +1,28 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import org.ironmaple.simulation.SimulatedArena;
+import org.jspecify.annotations.NullMarked;
+import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot.RobotRunType;
-import frc.robot.subsystems.drive.Drivetrain;
-import frc.robot.subsystems.drive.DrivetrainIO;
-import frc.robot.subsystems.drive.DrivetrainReal;
+import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveIOEmpty;
+import frc.robot.subsystems.swerve.SwerveReal;
+import frc.robot.subsystems.swerve.SwerveSim;
+import frc.robot.subsystems.swerve.gyro.GyroIOEmpty;
+import frc.robot.subsystems.swerve.gyro.GyroNavX2;
+import frc.robot.subsystems.swerve.mod.SwerveModuleIOEmpty;
+import frc.robot.subsystems.swerve.mod.SwerveModuleReal;
+import frc.robot.subsystems.swerve.util.TeleopControls;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIOEmpty;
+import frc.robot.subsystems.vision.VisionReal;
+import frc.robot.subsystems.vision.VisionSim;
+import frc.robot.util.DeviceDebug;
+import frc.robot.viz.RobotViz;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -19,60 +30,61 @@ import frc.robot.subsystems.drive.DrivetrainReal;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-public class RobotContainer {
-    /* Controllers */
-    private final CommandXboxController driver = new CommandXboxController(Constants.driverID);
-    private final CommandXboxController operator = new CommandXboxController(Constants.operatorID);
+@NullMarked
+public final class RobotContainer {
 
-    // Initialize AutoChooser Sendable
-    private final SendableChooser<String> autoChooser = new SendableChooser<>();
+    /* Controllers */
+    public final CommandXboxController driver =
+        new CommandXboxController(Constants.DriverControls.controllerId);
 
     /* Subsystems */
-    private Drivetrain drivetrain;
+    private final Swerve swerve;
+    private final Vision vision;
+
+    private final SwerveSim sim;
+    private final RobotViz viz;
 
     /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer(RobotRunType runtimeType) {
-        SmartDashboard.putData("Choose Auto: ", autoChooser);
-        autoChooser.setDefaultOption("Wait 1 Second", "wait");
         switch (runtimeType) {
             case kReal:
-                drivetrain = new Drivetrain(new DrivetrainReal());
+                sim = null;
+                swerve = new Swerve(SwerveReal::new, GyroNavX2::new, SwerveModuleReal::new);
+                vision = new Vision(swerve.state, new VisionReal());
                 break;
             case kSimulation:
-                // drivetrain = new Drivetrain(new DrivetrainSim() {});
+                sim = new SwerveSim(new Pose2d(2.0, 2.0, Rotation2d.kZero));
+                swerve = new Swerve(sim::simProvider, sim::gyroProvider, sim::moduleProvider);
+                vision = new Vision(swerve.state, new VisionSim(sim));
                 break;
             default:
-                drivetrain = new Drivetrain(new DrivetrainIO() {});
+                sim = null;
+                swerve = new Swerve(SwerveIOEmpty::new, GyroIOEmpty::new, SwerveModuleIOEmpty::new);
+                vision = new Vision(swerve.state, new VisionIOEmpty());
         }
-        // Configure the button bindings
-        configureButtonBindings();
+        viz = new RobotViz(sim, swerve);
+
+        DeviceDebug.initialize();
+
+        swerve.setDefaultCommand(swerve.driveUserRelative(TeleopControls.teleopControls(
+            () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX())));
+
+        driver.y().onTrue(swerve.setFieldRelativeOffset());
+
+        driver.a().whileTrue(swerve.wheelRadiusCharacterization()).onFalse(swerve.emergencyStop());
+        driver.b().whileTrue(swerve.feedforwardCharacterization()).onFalse(swerve.emergencyStop());
     }
 
-    /**
-     * Use this method to define your button->command mappings. Buttons can be created by
-     * instantiating a {@link GenericHID} or one of its subclasses
-     * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a
-     * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
-    private void configureButtonBindings() {}
-
-    /**
-     * Gets the user's selected autonomous command.
-     *
-     * @return Returns autonomous command selected.
-     */
-    public Command getAutonomousCommand() {
-        Command autocommand;
-        String stuff = autoChooser.getSelected();
-        switch (stuff) {
-            case "wait":
-                autocommand = new WaitCommand(1.0);
-                break;
-            default:
-                autocommand = new InstantCommand();
+    /** Runs once per 0.02 seconds after subsystems and commands. */
+    public void periodic() {
+        if (sim != null) {
+            SimulatedArena.getInstance().simulationPeriodic();
+            Logger.recordOutput("FieldSimulation/Algae",
+                SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+            Logger.recordOutput("FieldSimulation/Coral",
+                SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
         }
-        return autocommand;
+        viz.periodic();
     }
 }

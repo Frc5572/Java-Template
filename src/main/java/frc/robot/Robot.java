@@ -14,15 +14,15 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.PhoenixSignals;
 
 /**
  * Runs tasks on Roborio in this file.
  */
 public class Robot extends LoggedRobot {
     private RobotContainer robotContainer;
-    private Command autoChooser;
 
     /**
      * Robnot Run type
@@ -37,6 +37,7 @@ public class Robot extends LoggedRobot {
     }
 
     public RobotRunType robotRunType = RobotRunType.kReal;
+    private Timer gcTimer = new Timer();
 
     // private Ultrasonic ultrasonic = new Ultrasonic();
     /**
@@ -62,8 +63,6 @@ public class Robot extends LoggedRobot {
                 Logger.recordMetadata("GitDirty", "Unknown");
                 break;
         }
-
-
 
         if (isReal()) {
             Logger.addDataReceiver(new WPILOGWriter("/media/sda1")); // Log to a USB stick
@@ -95,27 +94,21 @@ public class Robot extends LoggedRobot {
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer(robotRunType);
-    }
 
-    /**
-     * This function is called every robot packet, no matter the mode. Use this for items like
-     * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
-     *
-     * <p>
-     * This runs after the mode specific periodic functions, but before LiveWindow and
-     * SmartDashboard integrated updating.
-     */
+        gcTimer.start();
+    }
 
     @Override
     public void robotPeriodic() {
-        // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled
-        // commands,
-        // running already-scheduled commands, removing finished or interrupted commands, and
-        // running
-        // subsystem periodic() methods. This must be called from the robot's periodic block in
-        // order for
-        // anything in the Command-based framework to work.
+        PhoenixSignals.refreshAll();
+
         CommandScheduler.getInstance().run();
+
+        robotContainer.periodic();
+
+        if (gcTimer.advanceIfElapsed(5)) {
+            System.gc();
+        }
     }
 
     @Override
@@ -124,47 +117,23 @@ public class Robot extends LoggedRobot {
     @Override
     public void disabledPeriodic() {}
 
-    /**
-     * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
-     */
     @Override
-    public void autonomousInit() {
-        robotContainer.getAutonomousCommand().schedule();
-        autoChooser = robotContainer.getAutonomousCommand();
+    public void autonomousInit() {}
 
-        // schedule the autonomous command (example)
-        if (autoChooser != null) {
-            autoChooser.schedule();
-        }
-    }
-
-    /** This function is called periodically during autonomous. */
     @Override
     public void autonomousPeriodic() {}
 
     @Override
-    public void teleopInit() {
-        if (autoChooser != null) {
-            autoChooser.cancel();
-        }
-    }
-
-    /** This function is called periodically during operator control. */
-    @Override
-    public void teleopPeriodic() {
-        // vision.update();
-    }
+    public void teleopInit() {}
 
     @Override
-    public void testInit() {
-        // Cancels all running commands at the start of test mode.
-        CommandScheduler.getInstance().cancelAll();
-    }
+    public void teleopPeriodic() {}
 
-    /** This function is called periodically during test mode. */
+    @Override
+    public void testInit() {}
+
     @Override
     public void testPeriodic() {}
-
 
     private static final String environmentVariable = "AKIT_LOG_PATH";
     private static final String advantageScopeFileName = "akit-log-path.txt";
