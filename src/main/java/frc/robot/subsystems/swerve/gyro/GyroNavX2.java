@@ -25,16 +25,18 @@ public class GyroNavX2 implements GyroIO {
     public void updateInputs(GyroInputs inputs) {
         inputs.connected = gyro.isConnected();
 
-        inputs.yaw = Rotation2d.fromDegrees(gyro.getYaw());
-        inputs.yawVelocityRadPerSec = Units.degreesToRadians(gyro.getRawGyroZ());
+        double invert = Constants.Swerve.invertGyro ? -1.0 : 1.0;
 
-        inputs.pitch = Rotation2d.fromDegrees(gyro.getPitch());
-        inputs.pitchVelocityRadPerSec = Units.degreesToRadians(gyro.getRawGyroX());
+        inputs.yaw = Rotation2d.fromDegrees(invert * gyro.getYaw());
+        inputs.yawVelocityRadPerSec = invert * Units.degreesToRadians(gyro.getRawGyroZ());
 
-        inputs.roll = Rotation2d.fromDegrees(gyro.getRoll());
-        inputs.rollVelocityRadPerSec = Units.degreesToRadians(gyro.getRawGyroY());
+        inputs.pitch = Rotation2d.fromDegrees(invert * gyro.getPitch());
+        inputs.pitchVelocityRadPerSec = invert * Units.degreesToRadians(gyro.getRawGyroX());
 
-        inputs.yawRads = yawQueue.stream().mapToDouble(x -> x).toArray();
+        inputs.roll = Rotation2d.fromDegrees(invert * gyro.getRoll());
+        inputs.rollVelocityRadPerSec = invert * Units.degreesToRadians(gyro.getRawGyroY());
+
+        inputs.yawRads = yawQueue.stream().mapToDouble(x -> invert * x).toArray();
         yawQueue.clear();
     }
 

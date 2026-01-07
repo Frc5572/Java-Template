@@ -61,14 +61,14 @@ public final class Constants {
         public static final boolean isCanviore = true;
 
         public static final NavXComType navXID = NavXComType.kMXP_SPI;
-        public static final boolean invertGyro = false;
+        public static final boolean invertGyro = true;
 
         /* Drivetrain Constants */
         public static final double trackWidth = Units.inchesToMeters(24.229);
         public static final double wheelBase = Units.inchesToMeters(24.229);
-        public static final Distance wheelDiameter = Inches.of(3.8);
+        public static final Distance wheelRadius = Inches.of(1.913);
+        public static final Distance wheelDiameter = wheelRadius.times(2);
         public static final Distance wheelCircumference = wheelDiameter.times(Math.PI);
-        public static final Distance wheelRadius = wheelDiameter.div(2);
 
         public static final Distance bumperFront = Inches.of(17.5);
         public static final Distance bumperRight = Inches.of(17.5);
@@ -123,15 +123,15 @@ public final class Constants {
         public static final double angleKD = 0.0;
 
         /* Drive Motor PID Values */
-        public static final double driveKP = 0.12;
+        public static final double driveKP = 0.0012;
         public static final double driveKI = 0.0;
         public static final double driveKD = 0.0;
         public static final double driveKF = 0.0;
 
         /* Drive Motor Characterization Values From SYSID */
-        public static final double driveKS = 0.32;
-        public static final double driveKV = 1.51;
-        public static final double driveKA = 0.27;
+        public static final double driveKS = 0.185;
+        public static final double driveKV = 1.004 / 6.536;
+        public static final double driveKA = 0.0;
 
         /* Swerve Profiling Values */
         /** Meters per Second */

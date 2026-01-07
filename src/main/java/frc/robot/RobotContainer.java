@@ -71,6 +71,9 @@ public final class RobotContainer {
             () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX())));
 
         driver.y().onTrue(swerve.setFieldRelativeOffset());
+
+        driver.a().whileTrue(swerve.wheelRadiusCharacterization()).onFalse(swerve.emergencyStop());
+        driver.b().whileTrue(swerve.feedforwardCharacterization()).onFalse(swerve.emergencyStop());
     }
 
     /** Runs once per 0.02 seconds after subsystems and commands. */

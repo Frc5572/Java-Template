@@ -55,7 +55,7 @@ public class PhoenixOdometryThread extends Thread {
     private final Lock signalsLock = new ReentrantLock();
 
     /** Registered Phoenix status signals */
-    private BaseStatusSignal[] phoenixSignals;
+    private BaseStatusSignal[] phoenixSignals = new BaseStatusSignal[0];
     /** Registered non-Phoenix signal suppliers */
     private final List<DoubleSupplier> genericSignals = new ArrayList<>();
     /** Output queues corresponding to Phoenix signals */

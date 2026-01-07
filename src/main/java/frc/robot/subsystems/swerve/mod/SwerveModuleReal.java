@@ -95,11 +95,13 @@ public class SwerveModuleReal implements SwerveModuleIO {
         configAngleEncoder();
 
         // Configure periodic frames
-        BaseStatusSignal.setUpdateFrequencyForAll(Constants.Swerve.odometryFrequency, drivePosition,
-            anglePosition);
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, driveVelocity, driveAppliedVolts,
-            driveSupplyCurrentAmps, driveStatorCurrentAmps, angleVelocity, angleAppliedVolts,
-            angleSupplyCurrentAmps, angleStatorCurrentAmps);
+        PhoenixSignals.tryUntilOk(5,
+            () -> BaseStatusSignal.setUpdateFrequencyForAll(Constants.Swerve.odometryFrequency,
+                drivePosition, anglePosition));
+        PhoenixSignals.tryUntilOk(5,
+            () -> BaseStatusSignal.setUpdateFrequencyForAll(50.0, driveVelocity, driveAppliedVolts,
+                driveSupplyCurrentAmps, driveStatorCurrentAmps, angleVelocity, angleAppliedVolts,
+                angleSupplyCurrentAmps, angleStatorCurrentAmps));
         PhoenixSignals.tryUntilOk(5, () -> ParentDevice.optimizeBusUtilizationForAll(driveMotor,
             angleMotor, absoluteEncoder));
 

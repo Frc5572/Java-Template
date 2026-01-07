@@ -42,6 +42,7 @@ public class PhoenixSignals {
             if (error.isOK()) {
                 break;
             }
+            System.err.println("Phoenix Error: " + error.toString());
         }
     }
 

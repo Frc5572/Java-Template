@@ -161,6 +161,7 @@ public class SwerveRateLimiter {
         wantedVel.a2 = wantedSpeedsRobotRelative.vyMetersPerSecond;
         wantedVel.a3 = wantedSpeedsRobotRelative.omegaRadiansPerSecond;
         publish("wantedVel", wantedVel);
+        publish("currentVel", currentVel);
 
         CommonOps_DDF3.subtract(wantedVel, currentVel, wantedAcc);
         CommonOps_DDF3.divide(wantedAcc, 0.02);
