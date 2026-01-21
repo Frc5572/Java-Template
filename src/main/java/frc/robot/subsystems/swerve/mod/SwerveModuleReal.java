@@ -66,7 +66,7 @@ public class SwerveModuleReal implements SwerveModuleIO {
     public SwerveModuleReal(int index, PhoenixOdometryThread odometryThread) {
         boolean isCanivore = Constants.Swerve.isCanviore;
 
-        CANBus loop = isCanivore ? CANBus("*") : CANBus.roboRIO();
+        CANBus loop = isCanivore ? new CANBus("*") : CANBus.roboRIO();
         driveMotor = new TalonFX(Constants.Swerve.modulesConstants[index].driveMotorId, loop);
         angleMotor = new TalonFX(Constants.Swerve.modulesConstants[index].angleMotorId, loop);
         absoluteEncoder = new CANcoder(Constants.Swerve.modulesConstants[index].canCoderId, loop);
