@@ -29,7 +29,7 @@ public class CameraConstants {
     public final double singleTagError;
 
     /** Constants for a camera */
-    @TypeStateBuilder("CameraConstantsBuilder")
+    @TypeStateBuilder(value = "CameraConstantsBuilder", linear = true)
     public CameraConstants(@RequiredField String name, @RequiredField int height,
         @RequiredField int width,
         @RequiredField(alt = @AltMethod(type = double.class, parameter_name = "degrees",
