@@ -4,17 +4,10 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Scanner;
-import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.util.PhoenixSignals;
 
@@ -36,16 +29,7 @@ public class Robot extends LoggedRobot {
         kReplay;
     }
 
-    public RobotRunType robotRunType = RobotRunType.kReal;
-    private Timer gcTimer = new Timer();
-
-    // private Ultrasonic ultrasonic = new Ultrasonic();
-    /**
-     * This function is run when the robot is first started up and should be used for any
-     * initialization code.
-     */
-    @Override
-    public void robotInit() {
+    public Robot() {
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -64,51 +48,28 @@ public class Robot extends LoggedRobot {
                 break;
         }
 
+        RobotRunType robotRunType;
+
         if (isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter("/media/sda1")); // Log to a USB stick
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+            Logger.addDataReceiver(new WPILOGWriter("/media/sda1"));
+            Logger.addDataReceiver(new NT4Publisher());
             setUseTiming(true);
             robotRunType = RobotRunType.kReal;
         } else {
-            String logPath = findReplayLog();
-            if (logPath == null) {
-                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-                setUseTiming(true);
-                robotRunType = RobotRunType.kSimulation;
-            } else {
-                // (or prompt the user)
-                Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-                Logger
-                    .addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
-                // Save outputs to a new log
-                setUseTiming(false); // Run as fast as possible
-                robotRunType = RobotRunType.kReplay;
-
-            }
+            Logger.addDataReceiver(new NT4Publisher());
+            setUseTiming(true);
+            robotRunType = RobotRunType.kSimulation;
         }
-        // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
-        // "Understanding Data Flow" page
-        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values
+        Logger.start();
 
-        // Instantiate our RobotContainer. This will perform all our button bindings,
-        // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer(robotRunType);
-
-        gcTimer.start();
     }
 
     @Override
     public void robotPeriodic() {
         PhoenixSignals.refreshAll();
-
         CommandScheduler.getInstance().run();
-
         robotContainer.periodic();
-
-        if (gcTimer.advanceIfElapsed(5)) {
-            System.gc();
-        }
     }
 
     @Override
@@ -134,37 +95,4 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void testPeriodic() {}
-
-    private static final String environmentVariable = "AKIT_LOG_PATH";
-    private static final String advantageScopeFileName = "akit-log-path.txt";
-
-    /**
-     * Finds the path to a log file for replay, using the following priorities: 1. The value of the
-     * "AKIT_LOG_PATH" environment variable, if set 2. The file currently open in AdvantageScope, if
-     * available 3. The result of the prompt displayed to the user
-     */
-    public static String findReplayLog() {
-        // Read environment variables
-        String envPath = System.getenv(environmentVariable);
-        if (envPath != null) {
-            System.out.println("Using log from " + environmentVariable
-                + " environment variable - \"" + envPath + "\"");
-            return envPath;
-        }
-
-        // Read file from AdvantageScope
-        Path advantageScopeTempPath =
-            Paths.get(System.getProperty("java.io.tmpdir"), advantageScopeFileName);
-        String advantageScopeLogPath = null;
-        try (Scanner fileScanner = new Scanner(advantageScopeTempPath)) {
-            advantageScopeLogPath = fileScanner.nextLine();
-        } catch (IOException e) {
-            System.out.println("Something went wrong");
-        }
-        if (advantageScopeLogPath != null) {
-            System.out.println("Using log from AdvantageScope - \"" + advantageScopeLogPath + "\"");
-            return advantageScopeLogPath;
-        }
-        return null;
-    }
 }
