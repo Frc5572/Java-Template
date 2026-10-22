@@ -189,7 +189,7 @@ public class SwerveRateLimiter {
         // Step 2: Robot may accelerate too fast and result in tilting. Limit directional
         // acceleration to prevent this.
         if (wantedAcc.a1 > forwardTiltLimit) {
-            wantedAcc.a1 = forwardLimit;
+            wantedAcc.a1 = forwardTiltLimit;
         }
         if (wantedAcc.a1 < -backTiltLimit) {
             wantedAcc.a1 = -backTiltLimit;
