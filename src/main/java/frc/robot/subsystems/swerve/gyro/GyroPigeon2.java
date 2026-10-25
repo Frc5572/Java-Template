@@ -16,7 +16,8 @@ import frc.robot.util.PhoenixSignals;
 @NullMarked
 public class GyroPigeon2 implements GyroIO {
 
-    private Pigeon2 gyro = new Pigeon2(Constants.Swerve.pigeonID, new CANBus("*"));
+    private Pigeon2 gyro = new Pigeon2(Constants.Swerve.pigeonID,
+        new CANBus(Constants.Swerve.isCanviore ? "*" : "rio"));
 
     private final Queue<Double> yawQueue;
     private final StatusSignal<Angle> gyroYaw = gyro.getYaw();
