@@ -7,7 +7,7 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveIOEmpty;
 import frc.robot.subsystems.swerve.SwerveReal;
 import frc.robot.subsystems.swerve.gyro.GyroIOEmpty;
-import frc.robot.subsystems.swerve.gyro.GyroNavX2;
+import frc.robot.subsystems.swerve.gyro.GyroPigeon2;
 import frc.robot.subsystems.swerve.mod.SwerveModuleIOEmpty;
 import frc.robot.subsystems.swerve.mod.SwerveModuleReal;
 import frc.robot.subsystems.swerve.util.TeleopControls;
@@ -41,7 +41,7 @@ public final class RobotContainer {
     public RobotContainer(RobotRunType runtimeType) {
         switch (runtimeType) {
             case kReal:
-                swerve = new Swerve(SwerveReal::new, GyroNavX2::new, SwerveModuleReal::new);
+                swerve = new Swerve(SwerveReal::new, GyroPigeon2::new, SwerveModuleReal::new);
                 vision = new Vision(swerve.state, new VisionReal());
                 break;
             default:
