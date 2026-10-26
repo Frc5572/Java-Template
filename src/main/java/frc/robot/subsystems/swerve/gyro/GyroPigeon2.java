@@ -29,9 +29,10 @@ public class GyroPigeon2 implements GyroIO {
 
     /** Pigeon2 implementation for Gyro */
     public GyroPigeon2(PhoenixOdometryThread odometryThread) {
-        PhoenixSignals.registerSignals(true, gyroYaw, yawVelocity, gyroPitch, pitchVelocity,
-            gyroRoll, rollVelocity);
-        this.yawQueue = odometryThread.registerSignal(gyroYaw);
+        PhoenixSignals.registerSignals(Constants.Swerve.isCanviore, gyroYaw.clone(),
+            yawVelocity.clone(), gyroPitch.clone(), pitchVelocity.clone(), gyroRoll.clone(),
+            rollVelocity.clone());
+        this.yawQueue = odometryThread.registerSignal(gyroYaw.clone());
     }
 
     @Override
