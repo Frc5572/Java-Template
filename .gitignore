@@ -138,6 +138,7 @@ $RECYCLE.BIN/
 ### Gradle ###
 .gradle
 /build/
+buildSrc/build/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -185,5 +186,8 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+simgui*.json
+*.wpilog
 
 BuildConstants.java
