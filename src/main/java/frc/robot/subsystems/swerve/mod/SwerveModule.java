@@ -42,7 +42,9 @@ public class SwerveModule {
      * @param desiredState The desired {@link SwerveModuleState} for the module
      */
     public void setDesiredState(SwerveModuleState desiredState) {
-        desiredState.optimize(getState().angle);
+        Rotation2d currentAngle = getState().angle;
+        desiredState.optimize(currentAngle);
+        desiredState.cosineScale(currentAngle);
         this.io.runAnglePosition(desiredState.angle);
         this.io.runDriveVelocity(
             desiredState.speedMetersPerSecond / Constants.Swerve.wheelRadius.in(Meters), 0);
