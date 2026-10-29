@@ -10,6 +10,7 @@ import frc.robot.util.typestate.TypeStateBuilder;
 @NullMarked
 public class ModuleConstants {
 
+    /** Constrants for vendor swerve modules */
     public static enum ModuleKind {
         Mk4i(5.36, 150.0 / 7.0), Mk4n(5.36, 18.75);
 
