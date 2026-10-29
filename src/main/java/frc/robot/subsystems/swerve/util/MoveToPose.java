@@ -154,16 +154,15 @@ public class MoveToPose extends Command {
         isCompleted = false;
     }
 
-    private static final HolonomicDriveController holonomicDriveController =
-        new HolonomicDriveController(new PIDController(Constants.SwerveTransformPID.translationP,
+    private final HolonomicDriveController holonomicDriveController = new HolonomicDriveController(
+        new PIDController(Constants.SwerveTransformPID.translationP,
             Constants.SwerveTransformPID.translationI, Constants.SwerveTransformPID.translationD),
-            new PIDController(Constants.SwerveTransformPID.translationP,
-                Constants.SwerveTransformPID.translationI,
-                Constants.SwerveTransformPID.translationD),
-            new ProfiledPIDController(Constants.SwerveTransformPID.rotationP,
-                Constants.SwerveTransformPID.rotationI, Constants.SwerveTransformPID.rotationD,
-                new Constraints(Constants.SwerveTransformPID.maxAngularVelocity,
-                    Constants.SwerveTransformPID.maxAngularAcceleration)));
+        new PIDController(Constants.SwerveTransformPID.translationP,
+            Constants.SwerveTransformPID.translationI, Constants.SwerveTransformPID.translationD),
+        new ProfiledPIDController(Constants.SwerveTransformPID.rotationP,
+            Constants.SwerveTransformPID.rotationI, Constants.SwerveTransformPID.rotationD,
+            new Constraints(Constants.SwerveTransformPID.maxAngularVelocity,
+                Constants.SwerveTransformPID.maxAngularAcceleration)));
 
     private Pose2d target = Pose2d.kZero;
 
@@ -210,7 +209,7 @@ public class MoveToPose extends Command {
         final var eRotate = poseError.getRotation();
         return Math.abs(eTranslate.getX()) < translationTolerance
             && Math.abs(eTranslate.getY()) < translationTolerance
-            && Math.abs(eRotate.getDegrees()) < rotationTolerance || ignoreRotation;
+            && Math.abs(eRotate.getRadians()) < rotationTolerance || ignoreRotation;
     }
 
 }
