@@ -209,7 +209,7 @@ public class MoveToPose extends Command {
         final var eRotate = poseError.getRotation();
         return Math.abs(eTranslate.getX()) < translationTolerance
             && Math.abs(eTranslate.getY()) < translationTolerance
-            && Math.abs(eRotate.getRadians()) < rotationTolerance || ignoreRotation;
+            && (Math.abs(eRotate.getRadians()) < rotationTolerance || ignoreRotation);
     }
 
 }
