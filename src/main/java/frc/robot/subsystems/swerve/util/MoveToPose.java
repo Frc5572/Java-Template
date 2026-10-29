@@ -1,15 +1,18 @@
 package frc.robot.subsystems.swerve.util;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import org.littletonrobotics.junction.Logger;
 import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.event.EventLoop;
@@ -59,6 +62,9 @@ public class MoveToPose extends Command {
     private final boolean flipForRed;
     private final double translationTolerance;
     private final double rotationTolerance;
+    private final BooleanSupplier flipY;
+    private final boolean ignoreRotation;
+    private final double feedforward;
 
     private boolean isActive = false;
     private boolean isCompleted = false;
@@ -90,7 +96,11 @@ public class MoveToPose extends Command {
                 value = "() -> maxSpeedConst")) DoubleSupplier maxSpeed,
         @OptionalField("true") boolean flipForRed,
         @OptionalField("0.5") double translationTolerance,
-        @OptionalField("edu.wpi.first.math.util.Units.degreesToRadians(5)") double rotationTolerance) {
+        @OptionalField("edu.wpi.first.math.util.Units.degreesToRadians(5)") double rotationTolerance,
+        @OptionalField(value = "() -> false",
+            alt = @AltMethod(type = boolean.class, parameter_name = "doFlip",
+                value = "() -> doFlip")) BooleanSupplier flipY,
+        @OptionalField("false") boolean ignoreRotation, @OptionalField("0.0") double feedforward) {
         this.autoRoutine = autoRoutine;
         if (autoRoutine == null) {
             this.eventLoop = CommandScheduler.getInstance().getDefaultButtonLoop();
@@ -104,6 +114,9 @@ public class MoveToPose extends Command {
         this.flipForRed = flipForRed;
         this.translationTolerance = translationTolerance;
         this.rotationTolerance = rotationTolerance;
+        this.flipY = flipY;
+        this.ignoreRotation = ignoreRotation;
+        this.feedforward = feedforward;
     }
 
     /**
@@ -160,14 +173,26 @@ public class MoveToPose extends Command {
         if (flipForRed) {
             target = AllianceFlipUtil.apply(target);
         }
+        if (flipY.getAsBoolean()) {
+            target = AllianceFlipUtil.flipY(target);
+        }
+        Logger.recordOutput("Swerve/MoveToPoseTarget", target);
         ChassisSpeeds ctrlEffort = holonomicDriveController
             .calculate(swerve.state.getGlobalPoseEstimate(), target, 0, target.getRotation());
+        var addon = new Translation2d(feedforward,
+            new Translation2d(ctrlEffort.vxMetersPerSecond, ctrlEffort.vyMetersPerSecond)
+                .getAngle());
+        ctrlEffort.vxMetersPerSecond += addon.getX();
+        ctrlEffort.vyMetersPerSecond += addon.getY();
         double speed = Math.hypot(ctrlEffort.vxMetersPerSecond, ctrlEffort.vyMetersPerSecond);
         double maxSpeed = this.maxSpeedSupplier.getAsDouble();
         if (speed > maxSpeed) {
             double mul = maxSpeed / speed;
             ctrlEffort.vxMetersPerSecond *= mul;
             ctrlEffort.vyMetersPerSecond *= mul;
+        }
+        if (ignoreRotation) {
+            ctrlEffort.omegaRadiansPerSecond = 0.0;
         }
         this.robotRelativeConsumer.accept(ctrlEffort);
     }
@@ -185,7 +210,7 @@ public class MoveToPose extends Command {
         final var eRotate = poseError.getRotation();
         return Math.abs(eTranslate.getX()) < translationTolerance
             && Math.abs(eTranslate.getY()) < translationTolerance
-            && Math.abs(eRotate.getDegrees()) < rotationTolerance;
+            && Math.abs(eRotate.getDegrees()) < rotationTolerance || ignoreRotation;
     }
 
 }

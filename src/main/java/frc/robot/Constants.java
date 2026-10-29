@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import frc.robot.subsystems.swerve.mod.ModuleConstants;
+import frc.robot.subsystems.swerve.mod.ModuleConstants.ModuleKind;
 import frc.robot.subsystems.swerve.mod.ModuleConstantsBuilder;
 import frc.robot.subsystems.vision.CameraConstants;
 import frc.robot.subsystems.vision.CameraConstantsBuilder;
@@ -161,28 +162,28 @@ public final class Constants {
         // @formatter:off
         public static final ModuleConstants[] modulesConstants = new ModuleConstants[] {
             // Front Left Module
-            new ModuleConstantsBuilder()
+            new ModuleConstantsBuilder(ModuleKind.Mk4i)
                 .driveMotorId(2)
                 .angleMotorId(1)
                 .canCoderId(1)
                 .angleOffset(Rotation2d.fromRotations(0.008789))
                 .finish(),
             // Front Right Module
-            new ModuleConstantsBuilder()
+            new ModuleConstantsBuilder(ModuleKind.Mk4i)
                 .driveMotorId(9)
                 .angleMotorId(8)
                 .canCoderId(2)
                 .angleOffset(Rotation2d.fromRotations(-0.301758))
                 .finish(),
             // Back Left Module
-            new ModuleConstantsBuilder()
+            new ModuleConstantsBuilder(ModuleKind.Mk4i)
                 .driveMotorId(0)
                 .angleMotorId(19)
                 .canCoderId(4)
                 .angleOffset(Rotation2d.fromRotations(-0.451172))
                 .finish(),
             // Back Right Module
-            new ModuleConstantsBuilder()
+            new ModuleConstantsBuilder(ModuleKind.Mk4i)
                 .driveMotorId(11)
                 .angleMotorId(10)
                 .canCoderId(3)
