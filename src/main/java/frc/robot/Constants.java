@@ -66,8 +66,8 @@ public final class Constants {
         public static final boolean invertGyro = true;
 
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(21.7);
-        public static final double wheelBase = Units.inchesToMeters(21.7);
+        public static final double trackWidth = Units.inchesToMeters(21.8);
+        public static final double wheelBase = Units.inchesToMeters(21.8);
         public static final Distance wheelRadius = Inches.of(1.906);
         public static final Distance wheelDiameter = wheelRadius.times(2);
         public static final Distance wheelCircumference = wheelDiameter.times(Math.PI);
@@ -99,7 +99,7 @@ public final class Constants {
 
         /* Angle Encoder Invert */
         public static final SensorDirectionValue cancoderInvert =
-            SensorDirectionValue.CounterClockwise_Positive;
+            SensorDirectionValue.Clockwise_Positive;
 
         /* Swerve Current Limiting */
         public static final int angleCurrentLimit = 25;
@@ -176,14 +176,14 @@ public final class Constants {
                 .angleOffset(Rotation2d.fromRotations(0.409668))
                 .finish(),
             // Back Left Module
-            new ModuleConstantsBuilder(ModuleKind.Mk4i)
+            new ModuleConstantsBuilder(ModuleKind.Mk4n)
                 .driveMotorId(2)
                 .angleMotorId(3)
                 .canCoderId(3)
                 .angleOffset(Rotation2d.fromRotations(0.474121))
                 .finish(),
             // Back Right Module
-            new ModuleConstantsBuilder(ModuleKind.Mk4i)
+            new ModuleConstantsBuilder(ModuleKind.Mk4n)
                 .driveMotorId(5)
                 .angleMotorId(4)
                 .canCoderId(4)
@@ -201,6 +201,22 @@ public final class Constants {
         // @formatter:off
         public static final CameraConstants[] cameraConstants = new CameraConstants[] {
             new CameraConstantsBuilder()
+                .coProcessorName("ubuntu")
+                .name("turret")
+                .height(800)
+                .width(1280)
+                .horizontalFieldOfView(80)
+                .simFps(20)
+                .simLatency(0.8)
+                .simLatencyStdDev(0.02)
+                .calibrationErrorMean(0.8)
+                .calibrationErrorStdDev(0.08)
+                .translationError(Units.inchesToMeters(6))
+                .rotationError(0.3)
+                .singleTagError(0)
+                .finish(),
+            new CameraConstantsBuilder()
+                .coProcessorName("skip")
                 .name("back")
                 .height(800)
                 .width(1280)
@@ -220,6 +236,9 @@ public final class Constants {
                             Degrees.of(-26),
                             Degrees.of(163))))
                 .translationError(0.3)
+                .rotationError(0.3)
+                .singleTagError(0)
+                // .findConstants(true)
                 .finish(),
         };
         // @formatter:on
