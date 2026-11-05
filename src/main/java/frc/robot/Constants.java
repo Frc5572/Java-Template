@@ -8,10 +8,12 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.studica.frc.AHRS.NavXComType;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
@@ -198,10 +200,16 @@ public final class Constants {
         public static final AprilTagFieldLayout fieldLayout =
             AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
+        public static final Pose3d turretCenter =
+            new Pose3d(new Translation3d(-0.155575, -0.13335, 0), Rotation3d.kZero);
+
+        public static final Pose3d turretRight = new Pose3d(-0.18097, -0.27012, 0.51406,
+            new Rotation3d(0, Units.degreesToRadians(-22.115), 0.0))
+                .rotateAround(turretCenter.getTranslation(), new Rotation3d(Rotation2d.kZero));
+
         // @formatter:off
         public static final CameraConstants[] cameraConstants = new CameraConstants[] {
             new CameraConstantsBuilder()
-                .coProcessorName("ubuntu")
                 .name("turret")
                 .height(800)
                 .width(1280)
@@ -211,12 +219,12 @@ public final class Constants {
                 .simLatencyStdDev(0.02)
                 .calibrationErrorMean(0.8)
                 .calibrationErrorStdDev(0.08)
+                .robotToCamera(new Transform3d(new Pose3d(), turretRight))
                 .translationError(Units.inchesToMeters(6))
                 .rotationError(0.3)
                 .singleTagError(0)
                 .finish(),
             new CameraConstantsBuilder()
-                .coProcessorName("skip")
                 .name("back")
                 .height(800)
                 .width(1280)
