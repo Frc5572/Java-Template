@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.NullMarked;
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -48,6 +49,8 @@ import frc.robot.Constants;
 @NullMarked
 public class PhoenixOdometryThread extends Thread {
 
+    private static final AtomicInteger THREAD_IDS = new AtomicInteger();
+
     /** Lock shared with odometry consumers to ensure consistent sampling */
     private final Lock odometryLock;
 
@@ -65,18 +68,20 @@ public class PhoenixOdometryThread extends Thread {
     /** Queues receiving timestamps associated with each sample */
     private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-    /** Whether the active CAN bus supports CAN-FD synchronization */
-    private final boolean isCANFD = new CANBus("*").isNetworkFD();
+    /** Whether the served CAN bus supports CAN-FD synchronization */
+    private final boolean isCANFD;
 
     /**
      * Creates a new odometry sampling thread.
      *
      * @param odometryLock lock shared with consumers to ensure that sampled values and timestamps
      *        are read atomically
+     * @param canBus CAN bus whose signals are sampled by this thread
      */
-    public PhoenixOdometryThread(Lock odometryLock) {
+    public PhoenixOdometryThread(Lock odometryLock, CANBus canBus) {
         this.odometryLock = odometryLock;
-        this.setName("PhoenixOdometryThread");
+        this.isCANFD = canBus.isNetworkFD();
+        this.setName("PhoenixOdometryThread-" + THREAD_IDS.incrementAndGet());
         this.setDaemon(true);
     }
 

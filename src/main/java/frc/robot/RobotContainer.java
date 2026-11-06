@@ -1,6 +1,9 @@
 package frc.robot;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.jspecify.annotations.NullMarked;
+import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot.RobotRunType;
 import frc.robot.subsystems.swerve.Swerve;
@@ -10,6 +13,7 @@ import frc.robot.subsystems.swerve.gyro.GyroIOEmpty;
 import frc.robot.subsystems.swerve.gyro.GyroPigeon2;
 import frc.robot.subsystems.swerve.mod.SwerveModuleIOEmpty;
 import frc.robot.subsystems.swerve.mod.SwerveModuleReal;
+import frc.robot.subsystems.swerve.util.PhoenixOdometryThread;
 import frc.robot.subsystems.swerve.util.TeleopControls;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOEmpty;
@@ -35,20 +39,31 @@ public final class RobotContainer {
     private final Swerve swerve;
     private final Vision vision;
     private final RobotViz viz;
+    private final Lock odometryLock = new ReentrantLock();
+    private final PhoenixOdometryThread odometryThread;
 
     /**
      */
     public RobotContainer(RobotRunType runtimeType) {
+        CANBus canBus = new CANBus(Constants.Swerve.isCanviore ? "*" : "rio");
+        odometryThread = new PhoenixOdometryThread(odometryLock, canBus);
+        Swerve.Bundle swerveBundle;
+
         switch (runtimeType) {
             case kReal:
-                swerve = new Swerve(SwerveReal::new, GyroPigeon2::new, SwerveModuleReal::new);
-                vision = new Vision(swerve.state, new VisionReal());
+                swerveBundle = Swerve.create(odometryLock, odometryThread, SwerveReal::new,
+                    GyroPigeon2::new, SwerveModuleReal::new);
+                vision = new Vision(swerveBundle.state(), new VisionReal());
                 break;
             default:
-                swerve = new Swerve(SwerveIOEmpty::new, GyroIOEmpty::new, SwerveModuleIOEmpty::new);
-                vision = new Vision(swerve.state, new VisionIOEmpty());
+                swerveBundle = Swerve.create(odometryLock, odometryThread, SwerveIOEmpty::new,
+                    GyroIOEmpty::new, SwerveModuleIOEmpty::new);
+                vision = new Vision(swerveBundle.state(), new VisionIOEmpty());
         }
+        swerve = swerveBundle.swerve();
         viz = new RobotViz(swerve);
+
+        odometryThread.start();
 
         DeviceDebug.initialize();
 

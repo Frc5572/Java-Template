@@ -1,8 +1,6 @@
 package frc.robot.subsystems.swerve;
 
-import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -64,8 +62,7 @@ import frc.robot.util.AllianceFlipUtil;
 @NullMarked
 public final class Swerve extends SubsystemBase {
 
-    private final Lock odometryLock = new ReentrantLock();
-    private final PhoenixOdometryThread odometryThread;
+    private final Lock odometryLock;
     private final SwerveModule[] modules;
     private final GyroIO gyro;
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
@@ -77,8 +74,32 @@ public final class Swerve extends SubsystemBase {
     public final SwerveState state;
 
     /**
-     * Constructs the swerve subsystem and initializes all hardware interfaces, estimator state, and
-     * background odometry processing.
+     * Simple container type that bundles together the {@link Swerve} subsystem and its associated
+     * {@link SwerveState} estimator.
+     *
+     * <p>
+     * This record is used to pass around both the high-level swerve drive control interface and the
+     * underlying drivetrain state estimation as a single unit.
+     *
+     * @param swerve the swerve drive subsystem instance
+     * @param state the drivetrain state estimator associated with the swerve subsystem
+     */
+    public static record Bundle(Swerve swerve, SwerveState state) {
+    }
+
+    /** Creates a swerve subsystem and its state estimator using shared odometry resources. */
+    public static Bundle create(Lock odometryLock, PhoenixOdometryThread odometryThread,
+        Function<PhoenixOdometryThread, SwerveIO> swerveIo,
+        Function<PhoenixOdometryThread, GyroIO> gyroIo,
+        BiFunction<Integer, PhoenixOdometryThread, SwerveModuleIO> moduleIoFn) {
+        Swerve swerve =
+            new Swerve(odometryLock, odometryThread, swerveIo, gyroIo, moduleIoFn);
+        return new Bundle(swerve, swerve.state);
+    }
+
+    /**
+     * Constructs the swerve subsystem, initializes its hardware interfaces and estimator state, and
+     * registers signals with the shared odometry thread.
      *
      * <p>
      * The provided factories are invoked with a shared {@link PhoenixOdometryThread} instance to
@@ -88,28 +109,32 @@ public final class Swerve extends SubsystemBase {
      * @param gyroIo factory for creating the gyro IO implementation
      * @param moduleIoFn factory for creating per-module IO implementations
      */
-    public Swerve(Function<PhoenixOdometryThread, SwerveIO> swerveIo,
+    private Swerve(Lock odometryLock, PhoenixOdometryThread odometryThread,
+        Function<PhoenixOdometryThread, SwerveIO> swerveIo,
         Function<PhoenixOdometryThread, GyroIO> gyroIo,
         BiFunction<Integer, PhoenixOdometryThread, SwerveModuleIO> moduleIoFn) {
         super("Swerve");
-        this.odometryThread = new PhoenixOdometryThread(this.odometryLock);
-        this.gyro = gyroIo.apply(this.odometryThread);
+        this.odometryLock = odometryLock;
+        this.gyro = gyroIo.apply(odometryThread);
         this.modules = IntStream.range(0, Constants.Swerve.modulesConstants.length)
-            .mapToObj(i -> new SwerveModule(i, moduleIoFn.apply(i, this.odometryThread)))
+            .mapToObj(i -> new SwerveModule(i, moduleIoFn.apply(i, odometryThread)))
             .toArray(SwerveModule[]::new);
         this.io = swerveIo.apply(odometryThread);
-        this.odometryThread.start();
+
         this.odometryLock.lock();
         SwerveModulePosition[] initPositions = new SwerveModulePosition[modules.length];
         try {
-            Arrays.stream(modules).map(mod -> {
+            for (int i = 0; i < modules.length; i++) {
+                SwerveModule mod = modules[i];
                 mod.updateInputs();
-                return mod.getPosition();
-            }).toArray(_i -> initPositions);
+                initPositions[i] = mod.getPosition();
+            }
+            this.gyro.updateInputs(this.gyroInputs);
+            Logger.processInputs("Swerve/Gyro", this.gyroInputs);
         } finally {
             this.odometryLock.unlock();
         }
-        this.state = new SwerveState(initPositions, this.gyroInputs.yaw);
+        this.state = new SwerveState(initPositions, gyroInputs.yaw);
     }
 
     @Override
