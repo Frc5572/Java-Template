@@ -44,9 +44,9 @@ public final class RobotContainer {
 
     /**
      */
-     public RobotContainer(RobotRunType runtimeType) {
-         CANBus canBus = new CANBus(Constants.Swerve.isCanviore ? "*" : "rio");
-         odometryThread = new PhoenixOdometryThread(odometryLock, canBus);
+    public RobotContainer(RobotRunType runtimeType) {
+        CANBus canBus = new CANBus(Constants.Swerve.isCanviore ? "*" : "rio");
+        odometryThread = new PhoenixOdometryThread(odometryLock, canBus);
         Swerve.Bundle swerveBundle;
 
         switch (runtimeType) {
