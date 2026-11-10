@@ -67,8 +67,10 @@ public final class RobotContainer {
 
         DeviceDebug.initialize();
 
-        swerve.setDefaultCommand(swerve.driveUserRelative(TeleopControls.teleopControls(
-            () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX())));
+        swerve.setDefaultCommand(swerve.driveUserRelative(
+            TeleopControls.teleopControls(() -> -driver.getLeftY(), () -> -driver.getLeftX(),
+                () -> -driver.getRightX(), Constants.DriverControls.driverTranslationalMaxSpeed,
+                Constants.DriverControls.driverRotationalMaxSpeed)));
 
         driver.y().onTrue(swerve.setFieldRelativeOffset());
 
