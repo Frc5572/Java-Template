@@ -10,7 +10,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.swerve.util.SwerveState;
+import frc.robot.localization.CameraProcessor;
+import frc.robot.localization.DrivetrainState;
+import frc.robot.localization.VisionObservation;
 import frc.robot.util.Tuples.Tuple2;
 
 /**
@@ -19,7 +21,7 @@ import frc.robot.util.Tuples.Tuple2;
  *
  * <p>
  * This subsystem acts as a bridge between one or more vision pipelines (e.g. PhotonVision) and the
- * {@link SwerveState} pose estimator.
+ * {@link DrivetrainState} pose estimator.
  *
  * <h2>Timestamp handling</h2> Vision measurements are frequently delayed relative to the control
  * loop. This subsystem ensures measurements are applied in chronological order so that the pose
@@ -39,7 +41,8 @@ public class Vision extends SubsystemBase {
     private final VisionIO io;
     private final VisionIO.CameraInputs[] cameraInputs;
     private final String[] cameraInputKeys;
-    private final SwerveState state;
+    private final DrivetrainState state;
+    private final CameraProcessor[] cameraProcessors;
     private final Translation3d[][] cameraViz;
     private final String[] cameraVizKeys;
     private final boolean[] cameraContributed;
@@ -51,7 +54,7 @@ public class Vision extends SubsystemBase {
      * @param state shared swerve pose estimator to receive vision updates
      * @param io vision IO implementation responsible for acquiring camera results
      */
-    public Vision(SwerveState state, VisionIO io) {
+    public Vision(DrivetrainState state, VisionIO io) {
         super("Vision");
         this.io = io;
         this.state = state;
@@ -66,6 +69,9 @@ public class Vision extends SubsystemBase {
         this.cameraContributed = new boolean[Constants.Vision.cameraConstants.length];
         this.cameraContributedKeys = IntStream.range(0, Constants.Vision.cameraConstants.length)
             .mapToObj((i) -> "Vision/Contributed_" + i).toArray(String[]::new);
+        this.cameraProcessors = IntStream.range(0, Constants.Vision.cameraConstants.length)
+            .mapToObj(i -> new CameraProcessor(Constants.Vision.cameraConstants[i]))
+            .toArray(CameraProcessor[]::new);
     }
 
     @Override
@@ -94,14 +100,23 @@ public class Vision extends SubsystemBase {
         }
 
         for (var result : results) {
-            cameraContributed[result._0()] = state
-                .addVisionObservation(Constants.Vision.cameraConstants[result._0()], result._1());
+            int cameraIndex = result._0();
+            var processed = cameraProcessors[cameraIndex].process(result._1(),
+                state.getFieldRelativeSpeeds());
+            if (processed instanceof CameraProcessor.Ok<?, ?> ok) {
+                cameraContributed[cameraIndex] = true;
+                state.addVisionObservation((VisionObservation) ok.value());
+            } else if (processed instanceof CameraProcessor.Err<?, ?> err) {
+                cameraContributed[cameraIndex] = false;
+                Logger.recordOutput(cameraContributedKeys[cameraIndex] + "/rejection",
+                    err.error().toString());
+            }
             for (int i = 0; i < result._1().targets.size(); i++) {
-                var cameraPose = new Pose3d(state.getGlobalPoseEstimate())
-                    .plus(Constants.Vision.cameraConstants[result._0()].robotToCamera);
+                var cameraPose = new Pose3d(state.getGlobalPoseEstimate()).plus(
+                    Constants.Vision.cameraConstants[cameraIndex].robotToCamera);
                 var target = result._1().targets.get(i);
                 Constants.Vision.fieldLayout.getTagPose(target.fiducialId).ifPresent(pose -> {
-                    cameraViz[result._0()] = addTwo(cameraViz[result._0()],
+                    cameraViz[cameraIndex] = addTwo(cameraViz[cameraIndex],
                         cameraPose.getTranslation(), pose.getTranslation());
                 });
             }
