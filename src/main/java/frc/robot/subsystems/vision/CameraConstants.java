@@ -20,7 +20,7 @@ public class CameraConstants {
     public final Rotation2d horizontalFieldOfView;
     public final Frequency simFps;
     public final Time simLatency;
-    public final Time simLatencyStdDev;
+    public final Time latencyStdDev;
     public final double calibrationErrorMean;
     public final double calibrationErrorStdDev;
     public final Transform3d robotToCamera;
@@ -39,7 +39,7 @@ public class CameraConstants {
         @RequiredField(alt = @AltMethod(type = double.class, parameter_name = "seconds",
             value = "edu.wpi.first.units.Units.Seconds.of(seconds)")) Time simLatency,
         @RequiredField(alt = @AltMethod(type = double.class, parameter_name = "seconds",
-            value = "edu.wpi.first.units.Units.Seconds.of(seconds)")) Time simLatencyStdDev,
+            value = "edu.wpi.first.units.Units.Seconds.of(seconds)")) Time latencyStdDev,
         @RequiredField double calibrationErrorMean, @RequiredField double calibrationErrorStdDev,
         @RequiredField Transform3d robotToCamera, @OptionalField("0.3") double translationError,
         @OptionalField("edu.wpi.first.math.util.Units.degreesToRadians(3)") double rotationError,
@@ -50,7 +50,7 @@ public class CameraConstants {
         this.horizontalFieldOfView = horizontalFieldOfView;
         this.simFps = simFps;
         this.simLatency = simLatency;
-        this.simLatencyStdDev = simLatencyStdDev;
+        this.latencyStdDev = latencyStdDev;
         this.calibrationErrorMean = calibrationErrorMean;
         this.calibrationErrorStdDev = calibrationErrorStdDev;
         this.robotToCamera = robotToCamera;

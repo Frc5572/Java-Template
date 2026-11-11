@@ -47,7 +47,7 @@ public class CameraProcessor {
             Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond);
         double rotationSpeed = Math.abs(currentSpeeds.omegaRadiansPerSecond);
 
-        double velocityStdDev = cameraConstants.simLatencyStdDev.in(Seconds);
+        double velocityStdDev = cameraConstants.latencyStdDev.in(Seconds);
         double velocityTranslationError = translationSpeed * velocityStdDev;
         double velocityRotationError = rotationSpeed * velocityStdDev;
         Logger.recordOutput("State/velocityTranslationError", velocityTranslationError);
@@ -78,9 +78,9 @@ public class CameraProcessor {
 
             double stdDevMultiplier = stdDevMultiplier(result.targets, cameraPose);
             double translationStdDev =
-                stdDevMultiplier * velocityTranslationError + cameraConstants.translationError;
+                stdDevMultiplier * cameraConstants.translationError + velocityTranslationError;
             double rotationStdDev =
-                stdDevMultiplier * velocityRotationError + cameraConstants.rotationError;
+                stdDevMultiplier * cameraConstants.rotationError + velocityRotationError;
 
             Logger.recordOutput("State/Camera/" + cameraConstants.name + "/stdDevMultipler",
                 stdDevMultiplier);
