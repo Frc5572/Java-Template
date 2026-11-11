@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.NullMarked;
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -81,7 +81,7 @@ public class PhoenixOdometryThread extends Thread {
     public PhoenixOdometryThread(Lock odometryLock, CANBus canBus) {
         this.odometryLock = odometryLock;
         this.isCANFD = canBus.isNetworkFD();
-        this.setName("PhoenixOdometryThread-" + THREAD_IDS.incrementAndGet());
+        this.setName("PhoenixOdometryThread-" + THREAD_IDS.incrementAndGet() + canBus);
         this.setDaemon(true);
     }
 
