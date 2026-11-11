@@ -75,7 +75,7 @@ public final class Swerve extends SubsystemBase {
 
     /**
      * Simple container type that bundles together the {@link Swerve} subsystem and its associated
-     * {@link SwerveState} estimator.
+     * estimator.
      *
      * <p>
      * This record is used to pass around both the high-level swerve drive control interface and the
