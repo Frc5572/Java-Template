@@ -9,6 +9,7 @@ import org.jspecify.annotations.NullMarked;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -68,6 +69,7 @@ public final class Swerve extends SubsystemBase {
     private final GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
     private final SwerveIO io;
     private final SwerveInputsAutoLogged inputs = new SwerveInputsAutoLogged();
+    private final SwerveModulePosition[] lastWheelPositions;
 
     private final SwerveRateLimiter limiter = new SwerveRateLimiter();
 
@@ -134,6 +136,7 @@ public final class Swerve extends SubsystemBase {
             this.odometryLock.unlock();
         }
         this.state = new DrivetrainState(initPositions, this.gyroInputs.yaw);
+        this.lastWheelPositions = initPositions.clone();
     }
 
     @Override
@@ -163,17 +166,24 @@ public final class Swerve extends SubsystemBase {
         ChassisSpeeds currentSpeeds =
             Constants.Swerve.swerveKinematics.toChassisSpeeds(wheelStates);
         double[] sampleTimestamps = this.inputs.timestamps;
-        double gyroPerSample = currentSpeeds.omegaRadiansPerSecond / sampleTimestamps.length;
         SwerveModulePosition[] wheelPositions = new SwerveModulePosition[modules.length];
         for (int i = 0; i < sampleTimestamps.length; i++) {
             for (int j = 0; j < modules.length; j++) {
                 wheelPositions[j] = modules[j].getOdometryPosition(i);
             }
-            state.addOdometryObservation(wheelPositions,
-                gyroInputs.connected ? Rotation2d.fromRadians(gyroInputs.yawRads[i])
-                    : state.getGlobalPoseEstimate().getRotation()
-                        .plus(Rotation2d.fromRadians((gyroPerSample + 1) * i)),
-                sampleTimestamps[i]);
+            Rotation2d gyroYaw;
+            if (gyroInputs.connected) {
+                gyroYaw = Rotation2d.fromRadians(gyroInputs.yawRads[i]);
+            } else {
+                Twist2d wheelTwist =
+                    Constants.Swerve.swerveKinematics.toTwist2d(lastWheelPositions, wheelPositions);
+                gyroYaw = state.getGlobalPoseEstimate().getRotation()
+                    .plus(new Rotation2d(wheelTwist.dtheta));
+            }
+            state.addOdometryObservation(wheelPositions, gyroYaw, sampleTimestamps[i]);
+            for (int j = 0; j < modules.length; j++) {
+                lastWheelPositions[j] = wheelPositions[j];
+            }
         }
         limiter.update(currentSpeeds);
         state.updateMeasuredSpeeds(currentSpeeds);
