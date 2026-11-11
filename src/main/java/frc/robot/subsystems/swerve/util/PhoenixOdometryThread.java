@@ -11,6 +11,7 @@ import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.NullMarked;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
@@ -192,21 +193,26 @@ public class PhoenixOdometryThread extends Thread {
     @Override
     public void run() {
         while (true) {
+            StatusCode status = StatusCode.OK;
             signalsLock.lock();
             try {
                 if (isCANFD && phoenixSignals.length > 0) {
-                    BaseStatusSignal.waitForAll(2.0 / Constants.Swerve.odometryFrequency,
+                    status = BaseStatusSignal.waitForAll(2.0 / Constants.Swerve.odometryFrequency,
                         phoenixSignals);
                 } else {
                     Thread.sleep((long) (1000.0 / Constants.Swerve.odometryFrequency));
                     if (phoenixSignals.length > 0) {
-                        BaseStatusSignal.refreshAll(phoenixSignals);
+                        status = BaseStatusSignal.refreshAll(phoenixSignals);
                     }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
                 signalsLock.unlock();
+            }
+
+            if (!status.isOK()) {
+                continue;
             }
 
             odometryLock.lock();
