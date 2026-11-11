@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.localization.DrivetrainState;
 import frc.robot.subsystems.swerve.gyro.GyroIO;
 import frc.robot.subsystems.swerve.gyro.GyroInputsAutoLogged;
 import frc.robot.subsystems.swerve.mod.SwerveModule;
@@ -26,7 +27,6 @@ import frc.robot.subsystems.swerve.util.PhoenixOdometryThread;
 import frc.robot.subsystems.swerve.util.SwerveRateLimiter;
 import frc.robot.subsystems.swerve.util.TuningCommands;
 import frc.robot.util.AllianceFlipUtil;
-import frc.robot.localization.DrivetrainState;
 
 /**
  * Primary swerve drivetrain subsystem.
@@ -48,8 +48,8 @@ import frc.robot.localization.DrivetrainState;
  *
  * <h2>Pose estimation</h2> Wheel encoder and gyro data are integrated at high rate to produce
  * odometry updates, which are then fused with delayed vision measurements inside
- * {@link DrivetrainState}. The resulting pose estimate is the authoritative source of robot position
- * for autonomous and field-relative driving.
+ * {@link DrivetrainState}. The resulting pose estimate is the authoritative source of robot
+ * position for autonomous and field-relative driving.
  *
  * <h2>Driving model</h2> All drive commands ultimately resolve to robot-relative
  * {@link ChassisSpeeds}. These speeds are passed through a {@link SwerveRateLimiter} before being
@@ -84,7 +84,7 @@ public final class Swerve extends SubsystemBase {
      * @param swerve the swerve drive subsystem instance
      * @param state the drivetrain state estimator associated with the swerve subsystem
      */
-    public static record Bundle(Swerve swerve, SwerveState state) {
+    public static record Bundle(Swerve swerve, DrivetrainState state) {
     }
 
     /** Creates a swerve subsystem and its state estimator using shared odometry resources. */
@@ -92,8 +92,7 @@ public final class Swerve extends SubsystemBase {
         Function<PhoenixOdometryThread, SwerveIO> swerveIo,
         Function<PhoenixOdometryThread, GyroIO> gyroIo,
         BiFunction<Integer, PhoenixOdometryThread, SwerveModuleIO> moduleIoFn) {
-        Swerve swerve =
-            new Swerve(odometryLock, odometryThread, swerveIo, gyroIo, moduleIoFn);
+        Swerve swerve = new Swerve(odometryLock, odometryThread, swerveIo, gyroIo, moduleIoFn);
         return new Bundle(swerve, swerve.state);
     }
 
