@@ -175,9 +175,14 @@ public class SwerveRateLimiter {
         double maxForwardAccel = forwardLimit * subphysicalAccelerationLimit;
         publish("maxForwardAccel", maxForwardAccel);
 
-        // get acceleration in direction of current velocity
-        double wantedAccMagnitude = wantedAcc.a1 * currentVel.a1 / currentSpeed
-            + wantedAcc.a2 * currentVel.a2 / currentSpeed;
+        // Use the acceleration magnitude when there is no reliable direction of motion.
+        double wantedAccMagnitude;
+        if (currentSpeed > 1e-6) {
+            wantedAccMagnitude = wantedAcc.a1 * currentVel.a1 / currentSpeed
+                + wantedAcc.a2 * currentVel.a2 / currentSpeed;
+        } else {
+            wantedAccMagnitude = Math.hypot(wantedAcc.a1, wantedAcc.a2);
+        }
         publish("wantedAccMagnitudeStep1", wantedAccMagnitude);
         if (wantedAccMagnitude > maxForwardAccel) {
             double mul = maxForwardAccel / wantedAccMagnitude;
