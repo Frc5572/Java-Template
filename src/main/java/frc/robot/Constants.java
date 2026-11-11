@@ -132,7 +132,7 @@ public final class Constants {
 
         /* Drive Motor Characterization Values From SYSID */
         public static final double driveKS = 0.185;
-        public static final double driveKV = 1.004 / 6.536;
+        public static final double driveKV = 1.004;
         public static final double driveKA = 0.0;
 
         /* Swerve Profiling Values */
@@ -207,7 +207,7 @@ public final class Constants {
                 .horizontalFieldOfView(80)
                 .simFps(20)
                 .simLatency(0.3)
-                .simLatencyStdDev(0.02)
+                .latencyStdDev(0.02)
                 .calibrationErrorMean(0.8)
                 .calibrationErrorStdDev(0.08)
                 .robotToCamera(new Transform3d(new Translation3d(Units.inchesToMeters(11),

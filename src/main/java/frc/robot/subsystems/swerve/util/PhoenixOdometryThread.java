@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.DoubleSupplier;
 import org.jspecify.annotations.NullMarked;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.StatusSignal;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants;
@@ -48,6 +50,8 @@ import frc.robot.Constants;
 @NullMarked
 public class PhoenixOdometryThread extends Thread {
 
+    private static final AtomicInteger THREAD_IDS = new AtomicInteger();
+
     /** Lock shared with odometry consumers to ensure consistent sampling */
     private final Lock odometryLock;
 
@@ -65,18 +69,20 @@ public class PhoenixOdometryThread extends Thread {
     /** Queues receiving timestamps associated with each sample */
     private final List<Queue<Double>> timestampQueues = new ArrayList<>();
 
-    /** Whether the active CAN bus supports CAN-FD synchronization */
-    private final boolean isCANFD = new CANBus("*").isNetworkFD();
+    /** Whether the served CAN bus supports CAN-FD synchronization */
+    private final boolean isCANFD;
 
     /**
      * Creates a new odometry sampling thread.
      *
      * @param odometryLock lock shared with consumers to ensure that sampled values and timestamps
      *        are read atomically
+     * @param canBus CAN bus whose signals are sampled by this thread
      */
-    public PhoenixOdometryThread(Lock odometryLock) {
+    public PhoenixOdometryThread(Lock odometryLock, CANBus canBus) {
         this.odometryLock = odometryLock;
-        this.setName("PhoenixOdometryThread");
+        this.isCANFD = canBus.isNetworkFD();
+        this.setName("PhoenixOdometryThread-" + THREAD_IDS.incrementAndGet() + canBus);
         this.setDaemon(true);
     }
 
@@ -187,21 +193,26 @@ public class PhoenixOdometryThread extends Thread {
     @Override
     public void run() {
         while (true) {
+            StatusCode status = StatusCode.OK;
             signalsLock.lock();
             try {
                 if (isCANFD && phoenixSignals.length > 0) {
-                    BaseStatusSignal.waitForAll(2.0 / Constants.Swerve.odometryFrequency,
+                    status = BaseStatusSignal.waitForAll(2.0 / Constants.Swerve.odometryFrequency,
                         phoenixSignals);
                 } else {
                     Thread.sleep((long) (1000.0 / Constants.Swerve.odometryFrequency));
                     if (phoenixSignals.length > 0) {
-                        BaseStatusSignal.refreshAll(phoenixSignals);
+                        status = BaseStatusSignal.refreshAll(phoenixSignals);
                     }
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
                 signalsLock.unlock();
+            }
+
+            if (!status.isOK()) {
+                continue;
             }
 
             odometryLock.lock();
