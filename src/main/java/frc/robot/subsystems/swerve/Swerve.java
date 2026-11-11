@@ -102,6 +102,7 @@ public final class Swerve extends SubsystemBase {
         this.odometryLock.lock();
         SwerveModulePosition[] initPositions = new SwerveModulePosition[modules.length];
         try {
+            this.gyro.updateInputs(this.gyroInputs);
             Arrays.stream(modules).map(mod -> {
                 mod.updateInputs();
                 return mod.getPosition();
