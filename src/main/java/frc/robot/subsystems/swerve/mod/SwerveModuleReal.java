@@ -246,7 +246,7 @@ public class SwerveModuleReal implements SwerveModuleIO {
     @Override
     public void runDriveVelocity(double velocityRadPerSec, double feedforward) {
         driveMotor.setControl(
-            driveVelocityVoltage.withVelocity(velocityRadPerSec).withFeedForward(feedforward));
+            driveVelocityVoltage.withVelocity(Units.radiansToRotations(velocityRadPerSec)).withFeedForward(feedforward));
     }
 
     private final PositionVoltage anglePositionVoltage = new PositionVoltage(0.0);
