@@ -215,7 +215,7 @@ public final class Constants {
                 .horizontalFieldOfView(80)
                 .simFps(20)
                 .simLatency(0.8)
-                .simLatencyStdDev(0.02)
+                .latencyStdDev(0.02)
                 .calibrationErrorMean(0.8)
                 .calibrationErrorStdDev(0.08)
                 .robotToCamera(new Transform3d(new Pose3d(), turretRight))
