@@ -217,7 +217,7 @@ public class PhoenixOdometryThread extends Thread {
 
             odometryLock.lock();
             try {
-                double timestamp = RobotController.getFPGATime() / 1e6;
+                double timestamp = RobotController.getFPGATime() / 1e9;
                 double totalLatency = 0.0;
                 for (BaseStatusSignal signal : phoenixSignals) {
                     totalLatency += signal.getTimestamp().getLatency();
